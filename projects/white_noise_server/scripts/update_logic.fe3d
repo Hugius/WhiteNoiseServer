@@ -3,6 +3,9 @@ META script_type_update
 META script_execution_waiting
 
 LIST connectedUsernames = fe3d:server_get_connected_usernames()
+STR message = ""
+VEC3 position = [0.0 0.0 0.0]
+DEC yaw = 0.0
 INT maxIndex = misc:list_get_size("connectedUsernames")
 INT index = 0
 
@@ -11,6 +14,15 @@ IF _readyCount MORE 0 AND _readyCount IS maxIndex:
         IF index IS maxIndex:
             BREAK
         ELSE:
-            fe3d:server_send_tcp_message(connectedUsernames[index], "server:start")
+            EDIT position = _spawnPositions[index]
+            EDIT yaw = _spawnYaws[index]
+            CAST position STR
+            CAST yaw STR
+            EDIT message = misc:string_concat("server:start:", position)
+            EDIT message = misc:string_concat(message, ":")
+            EDIT message = misc:string_concat(message, yaw)
+            fe3d:server_send_tcp_message(connectedUsernames[index], message)
+            CAST position VEC3
+            CAST yaw DEC
         INCR index 1
     EDIT _readyCount = 0
