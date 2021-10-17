@@ -1,0 +1,33 @@
+25 9
+META script_type_update
+META script_execution_waiting
+
+/// Constants
+CONST STR newUsername = fe3d:server_get_new_username()
+CONST STR oldUsername = fe3d:server_get_old_username()
+
+/// Non-constants
+STR message = ""
+
+/// Notify all other players that a player joined the game
+IF newUsername NOT "":
+    EDIT message = misc:string_concat("player_join:", newUsername)
+    fe3d:server_broadcast_tcp_message(message, newUsername)
+
+/// Notify all other players that a player left the game
+IF oldUsername NOT "":
+    EDIT message = misc:string_concat("player_leave:", oldUsername)
+    fe3d:server_broadcast_tcp_message(message, oldUsername)
+
+/// Send all connected usernames to the joined player
+IF newUsername NOT "":
+    LIST connectedUsernames = fe3d:server_get_connected_usernames()
+    INT index = 0
+    INT maxIndex = misc:list_get_size("connectedUsernames")
+    LOOP:
+        IF index IS maxIndex:
+            BREAK
+        ELIF connectedUsernames[index] NOT newUsername:
+            EDIT message = misc:string_concat("player_join:", connectedUsernames[index])
+            fe3d:server_send_tcp_message(newUsername, message)
+        INCR index 1

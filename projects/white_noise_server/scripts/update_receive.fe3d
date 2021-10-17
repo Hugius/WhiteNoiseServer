@@ -1,0 +1,59 @@
+33 42
+META script_type_update
+META script_execution_waiting
+
+/// Constants
+CONST LIST messageUsernames = fe3d:server_get_pending_usernames()
+CONST LIST messageProtocols = fe3d:server_get_pending_protocols()
+CONST LIST messageContents = fe3d:server_get_pending_contents()
+CONST INT maxIndex = misc:list_get_size("messageContents")
+
+/// Non-constants
+LIST contentParts = {}
+STR log = ""
+STR username = ""
+STR protocol = ""
+STR content = ""
+INT index = 0
+INT contentSize = 0
+BOOL contains = <false>
+
+/// Receive network messages
+LOOP:
+    IF index IS maxIndex:
+        BREAK
+    /// Extract message data
+    EDIT username = messageUsernames[index]
+    EDIT protocol = messageProtocols[index]
+    EDIT content = messageContents[index]
+    EDIT contentSize = misc:string_get_size(content)
+    /// Check if message is valid
+    EDIT contains = misc:string_contains(content, ":")
+    IF contains IS <true>:
+        EDIT contentParts = misc:string_split(content, ":")
+        IF contentParts[0] IS "server":
+            IF contentParts[1] IS "ready":
+                INCR _readyCount 1
+        ELIF contentParts[0] IS "forward":
+            DECR contentSize 8
+            EDIT content = misc:string_get_part(content, 8, contentSize)
+            IF protocol IS "TCP":
+                fe3d:server_broadcast_tcp_message(content, username)
+            ELSE:
+                fe3d:server_broadcast_udp_message(content, username)
+        ELIF contentParts[0] IS "reject":
+            DECR contentSize 7
+            EDIT content = misc:string_get_part(content, 7, contentSize)
+            IF protocol IS "TCP":
+                fe3d:server_send_tcp_message(username, content)
+            ELSE:
+                fe3d:server_send_udp_message(username, content)
+        ELSE:
+            EDIT log = misc:string_concat("Unknown message type: ", content)
+            fe3d:print(log)
+            fe3d:application_stop()
+    ELSE:
+        EDIT log = misc:string_concat("Invalid message: ", message)
+        fe3d:print(log)
+        fe3d:application_stop()
+    INCR index 1

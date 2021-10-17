@@ -1,0 +1,16 @@
+12 76
+META script_type_update
+META script_execution_waiting
+
+LIST connectedUsernames = fe3d:server_get_connected_usernames()
+INT maxIndex = misc:list_get_size("connectedUsernames")
+INT index = 0
+
+IF _readyCount MORE 0 AND _readyCount IS maxIndex:
+    LOOP:
+        IF index IS maxIndex:
+            BREAK
+        ELSE:
+            fe3d:server_send_tcp_message(connectedUsernames[index], "server:start")
+        INCR index 1
+    EDIT _readyCount = 0
