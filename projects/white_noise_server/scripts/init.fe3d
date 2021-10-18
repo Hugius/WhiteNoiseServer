@@ -4,6 +4,6 @@ META script_execution_entry
 
 fe3d:server_start(4)
 
-GLOB LIST _spawnPositions = {[-50.0 0.0 0.0], [50.0 0.0 0.0]}
-GLOB LIST _spawnYaws = {0.0, 180.0}
+GLOB LIST _spawnPositions = {[-50.0 0.0 0.0], [50.0 0.0 0.0], [0.0 0.0 50.0], [0.0 0.0 -50.0]}
+GLOB LIST _spawnYaws = {0.0, 180.0, 270.0, 90.0}
 GLOB INT _readyCount = 0
