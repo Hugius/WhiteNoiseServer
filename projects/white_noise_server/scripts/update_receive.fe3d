@@ -3,16 +3,16 @@ META script_type_update
 META script_execution_waiting
 
 /// Constants
-CONST LIST messageUsernames = fe3d:server_get_pending_usernames()
 CONST LIST messageProtocols = fe3d:server_get_pending_protocols()
+CONST LIST messageUsernames = fe3d:server_get_pending_usernames()
 CONST LIST messageContents = fe3d:server_get_pending_contents()
 CONST INT maxIndex = misc:list_get_size("messageContents")
 
 /// Non-constants
 LIST contentParts = {}
 STR log = ""
-STR username = ""
 STR protocol = ""
+STR username = ""
 STR content = ""
 INT index = 0
 INT contentSize = 0
@@ -23,8 +23,8 @@ LOOP:
     IF index IS maxIndex:
         BREAK
     /// Extract message data
-    EDIT username = messageUsernames[index]
     EDIT protocol = messageProtocols[index]
+    EDIT username = messageUsernames[index]
     EDIT content = messageContents[index]
     EDIT contentSize = misc:string_get_size(content)
     /// Check if message is valid
@@ -53,7 +53,7 @@ LOOP:
             fe3d:print(log)
             fe3d:application_stop()
     ELSE:
-        EDIT log = misc:string_concat("Invalid message: ", message)
+        EDIT log = misc:string_concat("Invalid message: ", content)
         fe3d:print(log)
         fe3d:application_stop()
     INCR index 1
