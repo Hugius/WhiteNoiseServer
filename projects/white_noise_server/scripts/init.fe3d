@@ -2,8 +2,15 @@
 META script_type_init
 META script_execution_entry
 
+/// Start server
 fe3d:server_start(4)
 
-GLOB LIST _spawnPositions = {[-50.0 0.0 0.0], [50.0 0.0 0.0], [0.0 0.0 50.0], [0.0 0.0 -50.0]}
-GLOB LIST _spawnYaws = {0.0, 180.0, 270.0, 90.0}
+/// Constants
+GLOB CONST LIST _spawnPositions = {[-50.0 0.0 0.0], [50.0 0.0 0.0], [0.0 0.0 50.0], [0.0 0.0 -50.0]}
+GLOB CONST LIST _spawnYaws = {0.0, 180.0, 270.0, 90.0}
+
+/// Non-constants
+GLOB LIST _kills = {0, 0, 0, 0}
 GLOB INT _readyCount = 0
+GLOB INT _livingCount = 0
+GLOB INT _round = 0

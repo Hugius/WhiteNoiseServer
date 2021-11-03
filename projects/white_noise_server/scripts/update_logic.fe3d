@@ -2,14 +2,21 @@
 META script_type_update
 META script_execution_waiting
 
-LIST connectedUsernames = fe3d:server_get_connected_usernames()
-STR message = ""
-VEC3 position = [0.0 0.0 0.0]
-DEC yaw = 0.0
-INT maxIndex = misc:list_get_size("connectedUsernames")
-INT index = 0
+/// Constants
+CONST LIST connectedUsernames = fe3d:server_get_connected_usernames()
+CONST INT totalUsers = misc:list_size("connectedUsernames")
 
-IF _readyCount MORE 0 AND _readyCount IS maxIndex:
+/// Non-constants
+STR message = ""
+
+/// Check if everyone is ready
+IF _round IS 0 AND _readyCount MORE 1 AND _readyCount IS totalUsers:
+    VEC3 position = [0.0 0.0 0.0]
+    DEC yaw = 0.0
+    INT maxIndex = totalUsers
+    INT index = 0
+    EDIT _livingCount = _readyCount
+    EDIT _round = 1
     LOOP:
         IF index IS maxIndex:
             BREAK
@@ -25,4 +32,26 @@ IF _readyCount MORE 0 AND _readyCount IS maxIndex:
             CAST position VEC3
             CAST yaw DEC
         INCR index 1
+
+/// Check if round is over
+IF _livingCount IS 1:
+    INCR _round 1
+    CAST _round STR
+    EDIT message = misc:string_concat("server:next:", _round)
+    fe3d:server_broadcast_tcp_message(message, "")
+    CAST _round INT
+    EDIT _livingCount = totalUsers
+
+/// Check if game is over
+INT maxKills = misc:list_max("_kills")
+IF maxKills IS 1:
+    INT winnerIndex = misc:list_index("_kills", maxKills)
+    CAST maxKills STR
+    EDIT message = misc:string_concat("server:stop:", connectedUsernames[winnerIndex])
+    EDIT message = misc:string_concat(message, ":")
+    EDIT message = misc:string_concat(message, maxKills)
+    fe3d:server_broadcast_tcp_message(message, "")
+    EDIT _kills = {0, 0, 0, 0}
     EDIT _readyCount = 0
+    EDIT _livingCount = 0
+    EDIT _round = 0

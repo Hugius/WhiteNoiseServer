@@ -23,7 +23,7 @@ IF oldUsername NOT "":
 IF newUsername NOT "":
     LIST connectedUsernames = fe3d:server_get_connected_usernames()
     INT index = 0
-    INT maxIndex = misc:list_get_size("connectedUsernames")
+    INT maxIndex = misc:list_size("connectedUsernames")
     LOOP:
         IF index IS maxIndex:
             BREAK
