@@ -3,7 +3,6 @@ META script_type_update
 META script_execution_waiting
 
 /// Constants
-CONST LIST connectedUsernames = fe3d:server_get_connected_usernames()
 CONST LIST messageProtocols = fe3d:server_get_pending_protocols()
 CONST LIST messageUsernames = fe3d:server_get_pending_usernames()
 CONST LIST messageContents = fe3d:server_get_pending_contents()
@@ -16,7 +15,7 @@ STR protocol = ""
 STR username = ""
 STR content = ""
 INT index = 0
-INT foundIndex = 0
+INT userIndex = 0
 INT contentSize = 0
 BOOL contains = <false>
 
@@ -35,11 +34,13 @@ LOOP:
         EDIT contentParts = misc:string_split(content, ":")
         IF contentParts[0] IS "server":
             IF contentParts[1] IS "ready":
-                INCR _readyCount 1
+                EDIT userIndex = misc:list_index("_usernames", username)
+                EDIT _readyStatus[userIndex] = <true>
             ELIF contentParts[1] IS "hit":
-                DECR _livingCount 1
-                EDIT foundIndex = misc:list_index("connectedUsernames", username)
-                INCR _kills[foundIndex] 1
+                EDIT userIndex = misc:list_index("_usernames", contentParts[2])
+                EDIT _livingStatus[userIndex] = <false>
+                EDIT userIndex = misc:list_index("_usernames", username)
+                INCR _kills[userIndex] 1
         ELIF contentParts[0] IS "forward":
             DECR contentSize 8
             EDIT content = misc:string_get_part(content, 8, contentSize)

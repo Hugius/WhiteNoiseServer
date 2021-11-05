@@ -9,25 +9,43 @@ CONST STR oldUsername = fe3d:server_get_old_username()
 /// Non-constants
 STR message = ""
 
-/// Notify all other players that a player joined the game
-IF newUsername NOT "":
-    EDIT message = misc:string_concat("player:join:", newUsername)
-    fe3d:server_broadcast_tcp_message(message, newUsername)
+/// Handle leaving player
+IF oldUsername NOT "":
+    INT userIndex = misc:list_index("_usernames", oldUsername)
+    EDIT _usernames[userIndex] = ""
+    EDIT _readyStatus[userIndex] = <false>
+    EDIT _livingStatus[userIndex] = <false>
+    EDIT _kills[userIndex] = 0
 
 /// Notify all other players that a player left the game
 IF oldUsername NOT "":
     EDIT message = misc:string_concat("player:leave:", oldUsername)
     fe3d:server_broadcast_tcp_message(message, oldUsername)
 
+/// Handle joining player
+IF newUsername NOT "":
+    IF _usernames[0] IS "":
+        EDIT _usernames[0] = newUsername
+    ELIF _usernames[1] IS "":
+        EDIT _usernames[1] = newUsername
+    ELIF _usernames[2] IS "":
+        EDIT _usernames[2] = newUsername
+    ELIF _usernames[3] IS "":
+        EDIT _usernames[3] = newUsername
+
+/// Notify all other players that a player joined the game
+IF newUsername NOT "":
+    EDIT message = misc:string_concat("player:join:", newUsername)
+    fe3d:server_broadcast_tcp_message(message, newUsername)
+
 /// Send all connected usernames to the joined player
 IF newUsername NOT "":
-    LIST connectedUsernames = fe3d:server_get_connected_usernames()
     INT index = 0
-    INT maxIndex = misc:list_size("connectedUsernames")
+    INT maxIndex = misc:list_size("_usernames")
     LOOP:
         IF index IS maxIndex:
             BREAK
-        ELIF connectedUsernames[index] NOT newUsername:
-            EDIT message = misc:string_concat("player:join:", connectedUsernames[index])
+        ELIF _usernames[index] NOT "" AND _usernames[index] NOT newUsername:
+            EDIT message = misc:string_concat("player:join:", _usernames[index])
             fe3d:server_send_tcp_message(newUsername, message)
         INCR index 1
